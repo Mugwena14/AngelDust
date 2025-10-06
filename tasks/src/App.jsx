@@ -1,7 +1,9 @@
-import React from "react";
-import { Search, LogOut, Settings } from "lucide-react";
+import React, { useState } from "react";
+import { Search, LogOut, Settings, LayoutDashboard, CheckSquare, User } from "lucide-react";
 
 export default function App() {
+  const [showDropdown, setShowDropdown] = useState(false);
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -9,37 +11,65 @@ export default function App() {
         <div>
           <h1 className="text-xl font-bold text-blue-600 mb-8">TaskPro</h1>
           <nav className="space-y-4">
-            <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 font-medium text-gray-700 flex items-center gap-2">
-              <LayoutDashboard size={16} /> Dashboard
+            <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 hover:scale-[1.02] transition-all duration-200 font-medium text-gray-700 flex items-center gap-2">
+              <LayoutDashboard size={18} /> Dashboard
             </button>
-            <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 font-medium text-gray-700 flex items-center gap-2">
-              <CheckSquare size={16} /> Tasks
+            <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 hover:scale-[1.02] transition-all duration-200 font-medium text-gray-700 flex items-center gap-2">
+              <CheckSquare size={18} /> Tasks
             </button>
-            <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 font-medium text-gray-700 flex items-center gap-2">
-              <Search size={16} /> Search
+            <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 hover:scale-[1.02] transition-all duration-200 font-medium text-gray-700 flex items-center gap-2">
+              <Search size={18} /> Search
             </button>
           </nav>
         </div>
 
         <div className="space-y-2 border-t pt-4">
-          <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700 flex items-center gap-2">
-            <Settings size={16} /> Settings
+          <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 hover:scale-[1.02] transition-all duration-200 font-medium text-gray-700 flex items-center gap-2">
+            <Settings size={18} /> Settings
           </button>
-          <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700 flex items-center gap-2">
-            <LogOut size={16} /> Log Out
+          <button className="w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 hover:scale-[1.02] transition-all duration-200 font-medium text-gray-700 flex items-center gap-2">
+            <LogOut size={18} /> Log Out
           </button>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-6 overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
+      <main className="flex-1 p-6 overflow-y-auto relative">
+        <div className="flex justify-between items-center mb-6 relative">
           <h2 className="text-2xl font-semibold">Welcome, Langavi 👋</h2>
-          <input
-            type="text"
-            placeholder="Search tasks..."
-            className="border rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring focus:ring-blue-200"
-          />
+
+          {/* Profile section */}
+          <div className="relative">
+            <button
+              onClick={() => setShowDropdown(!showDropdown)}
+              className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+            >
+              <img
+                src="https://i.pravatar.cc/40"
+                alt="Profile"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <div className="text-left">
+                <p className="text-sm font-semibold text-gray-800">Langavi</p>
+                <p className="text-xs text-gray-500">langavi@gmail.com</p>
+              </div>
+            </button>
+
+            {/* Dropdown */}
+            {showDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg py-2 z-10">
+                <button className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                  <User size={16} /> View Profile
+                </button>
+                <button className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                  <Settings size={16} /> Account Settings
+                </button>
+                <button className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                  <LogOut size={16} /> Log Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Task List */}

@@ -1,10 +1,41 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Search, LogOut, Settings } from "lucide-react";
 
 function App() {
   return (
+
+    <div className="flex h-screen bg-gray-50">
+{/* Sidebar */}
+<aside className="w-64 bg-white shadow-sm flex flex-col justify-between p-4">
+<div>
+<h1 className="text-xl font-bold text-blue-600 mb-8">TaskPro</h1>
+<nav className="space-y-4">
+<button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 font-medium text-gray-700">
+Dashboard
+</button>
+<button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 font-medium text-gray-700">
+Tasks
+</button>
+<button className="w-full text-left py-2 px-3 rounded-lg hover:bg-blue-50 font-medium text-gray-700 flex items-center gap-2">
+<Search size={16} /> Search
+</button>
+</nav>
+</div>
+
+
+<div className="space-y-2 border-t pt-4">
+<button className="w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700 flex items-center gap-2">
+<Settings size={16} /> Settings
+</button>
+<button className="w-full text-left py-2 px-3 rounded-lg hover:bg-gray-100 font-medium text-gray-700 flex items-center gap-2">
+<LogOut size={16} /> Log Out
+</button>
+</div>
+</aside>
+
+
+{/* Main content */}
+
     <main className="flex-1 p-6 overflow-y-auto">
       <div className="flex justify-between items-center mb-6">
       <h2 className="text-2xl font-semibold">Welcome, Langavi 👋</h2>
@@ -59,7 +90,6 @@ function App() {
     </div>
     </section>
     </main>
-    </div>
   );
 }
 

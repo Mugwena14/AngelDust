@@ -7,11 +7,12 @@ import {
   Search,
   ChevronDown,
   User,
+  Plus,
 } from "lucide-react";
 
 export default function App() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [view, setView] = useState("list"); // "list" or "board"
+  const [view, setView] = useState("list");
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -20,11 +21,7 @@ export default function App() {
         <div>
           <h1 className="text-xl font-bold text-blue-600 mb-8">TaskPro</h1>
           <nav className="space-y-2">
-            {[
-              { icon: LayoutDashboard, label: "Dashboard" },
-              { icon: CheckSquare, label: "Tasks" },
-              { icon: Search, label: "Search" },
-            ].map(({ icon: Icon, label }) => (
+           
               <button
                 key={label}
                 className="w-full text-left py-2 px-3 rounded-lg flex items-center gap-2 text-gray-700 font-medium hover:bg-blue-50 hover:text-blue-600 transition-all"
@@ -88,29 +85,38 @@ export default function App() {
 
         {/* My Tasks Container */}
         <div className="bg-white rounded-2xl shadow-sm p-6">
-          {/* Top Bar (My Tasks & View Toggle) */}
+          {/* Top Bar (My Tasks, View Toggle, Add Button) */}
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-semibold text-gray-800">My Tasks</h3>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setView("list")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
-                  view === "list"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-blue-50"
-                }`}
-              >
-                List
-              </button>
-              <button
-                onClick={() => setView("board")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
-                  view === "board"
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 hover:bg-blue-50"
-                }`}
-              >
-                Board
+
+            <div className="flex items-center gap-3">
+              {/* View Toggle */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setView("list")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+                    view === "list"
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-blue-50"
+                  }`}
+                >
+                  List
+                </button>
+                <button
+                  onClick={() => setView("board")}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
+                    view === "board"
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-700 hover:bg-blue-50"
+                  }`}
+                >
+                  Board
+                </button>
+              </div>
+
+              {/* Add Task Button */}
+              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium shadow-md hover:shadow-lg hover:scale-105 transition-all">
+                <Plus size={16} /> Add Task
               </button>
             </div>
           </div>

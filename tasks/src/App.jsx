@@ -21,7 +21,11 @@ export default function App() {
         <div>
           <h1 className="text-xl font-bold text-blue-600 mb-8">TaskPro</h1>
           <nav className="space-y-2">
-           
+            {[
+              { icon: LayoutDashboard, label: "Dashboard" },
+              { icon: CheckSquare, label: "Tasks" },
+              { icon: Search, label: "Search" },
+            ].map(({ icon: Icon, label }) => (
               <button
                 key={label}
                 className="w-full text-left py-2 px-3 rounded-lg flex items-center gap-2 text-gray-700 font-medium hover:bg-blue-50 hover:text-blue-600 transition-all"

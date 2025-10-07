@@ -60,7 +60,7 @@ export default function App() {
               className="flex items-center gap-3 bg-white border rounded-lg px-3 py-2 shadow-sm hover:shadow-md transition-all"
             >
               <img
-                src="https://i.pravatar.cc/40"
+                src=""
                 alt="Profile"
                 className="w-8 h-8 rounded-full"
               />

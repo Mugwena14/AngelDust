@@ -92,20 +92,73 @@ export const getAvailableSlots = async (req, res) => {
 
     res.json(result);
   } catch (err) {
-    console.error("❌ Error fetching slots:", err);
+    console.error("Error fetching slots:", err);
     res.status(500).json({ message: "Error fetching slots", error: err.message });
   }
 };
 
-// 🧾 (Optional) List all bookings
+//  List all bookings
+
 export const listBookings = async (req, res) => {
   try {
     const bookings = await Booking.find()
       .populate("service")
       .populate("customer")
-      .sort({ date: -1 });
+      .sort({ createdAt: -1 });
+
+    console.log(
+      "Fetched bookings:",
+      bookings.map((b) => ({ id: b._id, status: b.status }))
+    );
+
     res.json(bookings);
   } catch (err) {
-    res.status(500).json({ message: "Error fetching bookings", error: err.message });
+    console.error("Error fetching bookings:", err);
+    res.status(500).json({ message: "Error fetching bookings" });
+  }
+};
+
+// Update booking status
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    let { status } = req.body;
+
+    status = status.toUpperCase();
+
+    const validStatuses = ["PENDING", "CONFIRMED", "COMPLETED", "CANCELLED"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    console.log("Updating booking:", id, "to status:", status);
+
+    const booking = await Booking.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true, runValidators: true }
+    )
+      .populate("service")
+      .populate("customer");
+
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+    res.json(booking);
+  } catch (err) {
+    console.error("❌ Error updating booking status:", err);
+    res.status(500).json({ message: "Error updating booking status", error: err.message });
+  }
+};
+
+// Delete booking
+export const deleteBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const booking = await Booking.findByIdAndDelete(id);
+    if (!booking) return res.status(404).json({ message: "Booking not found" });
+    res.json({ message: "Booking deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting booking:", err);
+    res.status(500).json({ message: "Error deleting booking", error: err.message });
   }
 };

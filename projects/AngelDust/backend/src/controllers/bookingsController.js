@@ -162,3 +162,21 @@ export const deleteBooking = async (req, res) => {
     res.status(500).json({ message: "Error deleting booking", error: err.message });
   }
 };
+
+export const getBookingById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const booking = await Booking.findById(id)
+      .populate("service")
+      .populate("customer");
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.json(booking);
+  } catch (err) {
+    console.error("Error fetching booking:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

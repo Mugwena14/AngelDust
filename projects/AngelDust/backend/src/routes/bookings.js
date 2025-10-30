@@ -4,7 +4,8 @@ import {
   getAvailableSlots,
   listBookings,
   updateBookingStatus, 
-  deleteBooking 
+  deleteBooking ,
+  getBookingById,
 } from "../controllers/bookingsController.js";
 
 const router = Router();
@@ -21,6 +22,8 @@ router.get("/", listBookings);
 // Edit status
 router.patch("/:id/status", updateBookingStatus);
 
+// Get Booking by id
+router.get("/:id", getBookingById);
 
 // Delete booking
 router.delete("/:id", deleteBooking);

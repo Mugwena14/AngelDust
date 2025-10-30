@@ -3,11 +3,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
+import {
+  Calendar,
+  Clock,
+  Phone,
+  Mail,
+  Car,
+  Tag,
+  User,
+  Hash,
+  Search,
+  X,
+} from "lucide-react";
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState<string | null>(null); // Track which card is open
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [searchId, setSearchId] = useState("");
+  const [searching, setSearching] = useState(false);
 
   const fetchBookings = async () => {
     try {
@@ -18,6 +32,27 @@ export default function BookingsPage() {
       console.error("Error fetching bookings:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const searchBooking = async () => {
+    if (!searchId.trim()) {
+      fetchBookings();
+      return;
+    }
+
+    try {
+      setSearching(true);
+      const res = await axios.get(`/api/bookings/${searchId.trim()}`);
+      setBookings([res.data]);
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        setBookings([]);
+      } else {
+        console.error("Error searching booking:", err);
+      }
+    } finally {
+      setSearching(false);
     }
   };
 
@@ -58,6 +93,31 @@ export default function BookingsPage() {
     >
       <h1 className="text-3xl font-bold mb-6">Booking Management</h1>
 
+      {/* 🔍 Search Section */}
+      <div className="flex items-center gap-2 mb-6">
+        <input
+          type="text"
+          placeholder="Search by booking ID..."
+          value={searchId}
+          onChange={(e) => setSearchId(e.target.value)}
+          className="bg-gray-900 border border-gray-700 text-white rounded-lg px-3 py-2 w-full"
+        />
+        <Button onClick={searchBooking} disabled={searching}>
+          {searching ? "Searching..." : <Search size={18} />}
+        </Button>
+        {searchId && (
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setSearchId("");
+              fetchBookings();
+            }}
+          >
+            <X size={18} />
+          </Button>
+        )}
+      </div>
+
       {loading ? (
         <p className="text-gray-400">Loading bookings...</p>
       ) : (
@@ -74,9 +134,11 @@ export default function BookingsPage() {
               >
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-semibold">{b.customer?.name}</p>
-                    <p className="text-sm text-gray-400">
-                      {b.service?.name} — {b.date} at {b.time}
+                    <p className="font-semibold flex items-center gap-2">
+                      <User size={16} /> {b.customer?.name}
+                    </p>
+                    <p className="text-sm text-gray-400 flex items-center gap-2">
+                      <Calendar size={14} /> {b.date} — <Clock size={14} /> {b.time}
                     </p>
                     <p className="text-xs text-gray-500">Status: {b.status}</p>
                   </div>
@@ -111,7 +173,6 @@ export default function BookingsPage() {
                   </div>
                 </div>
 
-                {/* Expandable Details */}
                 <AnimatePresence>
                   {expanded === b._id && (
                     <motion.div
@@ -119,32 +180,38 @@ export default function BookingsPage() {
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="mt-3 border-t border-white/10 pt-3 text-sm text-gray-300"
+                      className="mt-4 border-t border-white/10 pt-3 text-sm text-gray-300 space-y-2"
                     >
-                      <p>
-                        <strong>Service Title:</strong> {b.service?.name}
-                      </p>
-                      <p>
-                        <strong>Service Price:</strong>{" "}
-                        {b.service?.price ? `R${b.service.price}` : "N/A"}
-                      </p>
-                      <p>
-                        <strong>Customer Phone:</strong> {b.customer?.phone}
-                      </p>
-                      {b.customer?.email && (
-                        <p>
-                          <strong>Email:</strong> {b.customer.email}
+                      <div className="grid grid-cols-2 gap-2">
+                        <p className="flex items-center gap-2">
+                          <Tag size={14} /> <strong>Service:</strong>{" "}
+                          {b.service?.name || "N/A"}
                         </p>
-                      )}
-                      {b.vehicle && (
-                        <p>
-                          <strong>Vehicle:</strong>{" "}
-                          {b.vehicle.make || ""} {b.vehicle.model || ""}{" "}
-                          {b.vehicle.plate || ""}
+                        <p className="flex items-center gap-2">
+                          <Tag size={14} /> <strong>Price:</strong>{" "}
+                          {b.service?.price ? `R${b.service.price}` : "N/A"}
                         </p>
-                      )}
-                      <p className="text-xs text-gray-500 mt-2">
-                        Booking ID: {b._id}
+                        <p className="flex items-center gap-2">
+                          <Phone size={14} /> <strong>Phone:</strong>{" "}
+                          {b.customer?.phone || "N/A"}
+                        </p>
+                        {b.customer?.email && (
+                          <p className="flex items-center gap-2">
+                            <Mail size={14} /> <strong>Email:</strong>{" "}
+                            {b.customer.email}
+                          </p>
+                        )}
+                        {b.vehicle && (
+                          <p className="flex items-center gap-2 col-span-2">
+                            <Car size={14} />{" "}
+                            <strong>Vehicle:</strong>{" "}
+                            {b.vehicle.make || ""} {b.vehicle.model || ""}{" "}
+                            {b.vehicle.plate || ""}
+                          </p>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <Hash size={12} /> Booking ID: {b._id}
                       </p>
                     </motion.div>
                   )}

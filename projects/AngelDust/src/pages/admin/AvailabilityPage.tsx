@@ -1,143 +1,107 @@
+// pages/AdminAvailabilityPage.tsx
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import axios from "axios";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  fetchAvailability,
-  clearAvailabilityError,
-} from "@/store/slices/availabilitySlice";
-import { Loader2 } from "lucide-react";
 
-export default function AvailabilityPage() {
-  const dispatch = useAppDispatch();
-  const { data, loading, error } = useAppSelector((s) => s.availability);
+export default function AdminAvailabilityPage() {
+  const [slots, setSlots] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newSlot, setNewSlot] = useState({ date: "", startTime: "", endTime: "" });
+  const [saving, setSaving] = useState(false);
 
-  const [form, setForm] = useState({
-    workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-    start: "09:00",
-    end: "17:00",
-    slotsPerHour: 2,
-  });
-
-  // 🔹 Load availability on mount
-  useEffect(() => {
-    dispatch(fetchAvailability());
-  }, [dispatch]);
-
-  // 🔹 Sync with store data
-  useEffect(() => {
-    if (data) {
-      setForm({
-        workingDays: data.workingDays || form.workingDays,
-        start: data.workingHours?.start || form.start,
-        end: data.workingHours?.end || form.end,
-        slotsPerHour: data.slotsPerHour || form.slotsPerHour,
-      });
+  // Fetch unavailable slots
+  const fetchSlots = async () => {
+    try {
+      const res = await axios.get("http://localhost:4000/api/availability");
+      setSlots(res.data.unavailableSlots || []);
+    } catch (err) {
+      console.error("Error fetching unavailable slots:", err);
+    } finally {
+      setLoading(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
-
-  // 🔹 Update field handler
-  const handleChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  // 🔹 Save handler
+  useEffect(() => {
+    fetchSlots();
+  }, []);
 
+  const addSlot = async () => {
+    if (!newSlot.date || !newSlot.startTime || !newSlot.endTime) return alert("Fill all fields");
+    try {
+      setSaving(true);
+      const res = await axios.post("http://localhost:4000/api/availability", newSlot);
+      setSlots(res.data.record.unavailableSlots);
+      setNewSlot({ date: "", startTime: "", endTime: "" });
+    } catch (err) {
+      console.error("Error adding slot:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteSlot = async (id: string) => {
+    try {
+      await axios.delete(`http://localhost:4000/api/availability/${id}`);
+      setSlots(slots.filter((s) => s._id !== id));
+    } catch (err) {
+      console.error("Error deleting slot:", err);
+    }
+  };
+
+  if (loading) return <p className="text-gray-400">Loading unavailable slots...</p>;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="text-white"
-    >
-      <h1 className="text-3xl font-bold mb-6">Availability Management</h1>
+    <div className="text-white">
+      <h1 className="text-3xl font-bold mb-6">Admin Unavailability Settings</h1>
 
-      <Card className="p-6 bg-black/50 border-white/10 rounded-2xl shadow-md space-y-6">
-        <div>
-          <Label className="text-gray-300">Working Days</Label>
-          <div className="flex flex-wrap gap-2 mt-2">
-            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(
-              (day) => (
-                <button
-                  key={day}
-                  onClick={() =>
-                    handleChange(
-                      "workingDays",
-                      form.workingDays.includes(day)
-                        ? form.workingDays.filter((d) => d !== day)
-                        : [...form.workingDays, day]
-                    )
-                  }
-                  className={`px-3 py-1 rounded-xl border text-sm ${
-                    form.workingDays.includes(day)
-                      ? "bg-white text-black"
-                      : "border-white/20 text-gray-400"
-                  }`}
-                >
-                  {day.slice(0, 3)}
-                </button>
-              )
-            )}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <Label className="text-gray-300">Start Time</Label>
-            <Input
-              type="time"
-              value={form.start}
-              onChange={(e) => handleChange("start", e.target.value)}
-              className="bg-black/40 text-white border-white/20 mt-1"
-            />
-          </div>
-          <div>
-            <Label className="text-gray-300">End Time</Label>
-            <Input
-              type="time"
-              value={form.end}
-              onChange={(e) => handleChange("end", e.target.value)}
-              className="bg-black/40 text-white border-white/20 mt-1"
-            />
-          </div>
-        </div>
-
-        <div>
-          <Label className="text-gray-300">Slots per Hour</Label>
+      <Card className="p-6 bg-black/50 border-white/10 space-y-6">
+        {/* Add new slot */}
+        <div className="flex flex-col md:flex-row items-center gap-3">
           <Input
-            type="number"
-            min={1}
-            value={form.slotsPerHour}
-            onChange={(e) => handleChange("slotsPerHour", Number(e.target.value))}
-            className="bg-black/40 text-white border-white/20 mt-1 w-32"
+            type="date"
+            value={newSlot.date}
+            onChange={(e) => setNewSlot({ ...newSlot, date: e.target.value })}
+            className="bg-gray-900 border-gray-700 text-white"
           />
-        </div>
-
-        {error && (
-          <p className="text-red-400 text-sm border border-red-400/30 bg-red-900/20 rounded-lg p-2">
-            {error}
-          </p>
-        )}
-
-        <div className="flex justify-end pt-2">
-          <Button
-            disabled={loading}
-            className="bg-white text-black hover:bg-gray-200"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...
-              </>
-            ) : (
-              "Save Changes"
-            )}
+          <Input
+            type="time"
+            value={newSlot.startTime}
+            onChange={(e) => setNewSlot({ ...newSlot, startTime: e.target.value })}
+            className="bg-gray-900 border-gray-700 text-white"
+          />
+          <Input
+            type="time"
+            value={newSlot.endTime}
+            onChange={(e) => setNewSlot({ ...newSlot, endTime: e.target.value })}
+            className="bg-gray-900 border-gray-700 text-white"
+          />
+          <Button onClick={addSlot} disabled={saving}>
+            {saving ? "Saving..." : "Add Unavailable Slot"}
           </Button>
         </div>
+
+        {/* List unavailable slots */}
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold mb-2">Unavailable Dates & Times</h2>
+          {slots.length === 0 && <p className="text-gray-400">No unavailable slots set.</p>}
+          {slots.map((slot) => (
+            <div
+              key={slot._id}
+              className="flex justify-between items-center bg-gray-800 p-3 rounded-md border border-gray-700"
+            >
+              <p>
+                <span className="font-semibold">{slot.date}</span> — {slot.startTime} to{" "}
+                {slot.endTime}
+              </p>
+              <Button variant="destructive" size="sm" onClick={() => deleteSlot(slot._id)}>
+                Remove
+              </Button>
+            </div>
+          ))}
+        </div>
       </Card>
-    </motion.div>
+    </div>
   );
 }

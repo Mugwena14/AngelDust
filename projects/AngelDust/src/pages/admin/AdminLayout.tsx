@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { motion } from "framer-motion";
 import DarkVeil from "../DarkVeil.tsx";
-import { LogOut, Calendar, Users, Settings, Home } from "lucide-react";
+import { LogOut, Calendar, Users, Settings, Home, List } from "lucide-react";
 
 export default function AdminLayout() {
   const navItems = [
@@ -9,6 +9,7 @@ export default function AdminLayout() {
     { name: "Bookings", path: "/admin/bookings", icon: Calendar },
     { name: "Availability", path: "/admin/availability", icon: Settings },
     { name: "Customers", path: "/admin/customers", icon: Users },
+    { name: "Services", path: "/admin/services", icon: List },
   ];
 
   return (

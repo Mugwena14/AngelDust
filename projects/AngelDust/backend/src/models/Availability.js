@@ -1,20 +1,16 @@
 import mongoose from "mongoose";
 
-const { Schema, model } = mongoose;
+const UnavailabilitySchema = new mongoose.Schema({
+  date: { type: String, required: true }, // YYYY-MM-DD
+  startTime: { type: String, required: true }, // HH:mm
+  endTime: { type: String, required: true }, // HH:mm
+});
 
-const AvailabilitySchema = new Schema(
+const AvailabilitySchema = new mongoose.Schema(
   {
-    businessHours: [
-      {
-        day: { type: Number, required: true }, // 0=Sun..6=Sat
-        start: { type: String, required: true }, // "09:00"
-        end: { type: String, required: true },   // "17:00"
-      }
-    ],
-    holidays: [{ type: String }], // ISO yyyy-mm-dd strings
-    defaultCapacityPerSlot: { type: Number, default: 1 },
+    unavailableSlots: [UnavailabilitySchema], // list of blocked dates/times
   },
   { timestamps: true }
 );
 
-export default model("Availability", AvailabilitySchema);
+export default mongoose.model("Availability", AvailabilitySchema);

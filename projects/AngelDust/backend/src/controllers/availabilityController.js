@@ -1,23 +1,45 @@
+import asyncHandler from "express-async-handler";
 import Availability from "../models/Availability.js";
-import { asyncHandler } from "../middlewares/asyncHandler.js";
 
-// 🟢 Get availability settings
-export const getAvailability = asyncHandler(async (req, res) => {
-  const availability = await Availability.findOne();
-  res.json(availability);
+// 🟢 Get all unavailable slots
+export const getUnavailableSlots = asyncHandler(async (req, res) => {
+  const record = await Availability.findOne();
+  if (!record) {
+    return res.json({ unavailableSlots: [] });
+  }
+  res.json(record);
 });
 
-// 🟡 Create or update (upsert) availability settings
-export const upsertAvailability = asyncHandler(async (req, res) => {
-  const payload = req.body;
 
-  let availability = await Availability.findOne();
-  if (!availability) {
-    availability = await Availability.create(payload);
-  } else {
-    Object.assign(availability, payload);
-    await availability.save();
+
+// 🟡 Add a new unavailable slot
+export const addUnavailableSlot = asyncHandler(async (req, res) => {
+  const { date, startTime, endTime } = req.body;
+
+  let record = await Availability.findOne();
+  if (!record) {
+    record = new Availability({ unavailableSlots: [] });
   }
 
-  res.json(availability);
+  record.unavailableSlots.push({ date, startTime, endTime });
+  await record.save();
+
+  res.json({ message: "Slot added", record });
+});
+
+// 🔴 Remove unavailable slot
+export const removeUnavailableSlot = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const record = await Availability.findOne();
+  if (!record) {
+    return res.status(404).json({ message: "No record found" });
+  }
+
+  record.unavailableSlots = record.unavailableSlots.filter(
+    (slot) => slot._id.toString() !== id
+  );
+
+  await record.save();
+  res.json({ message: "Slot removed", record });
 });

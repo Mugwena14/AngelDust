@@ -26,7 +26,7 @@ export default function BookingsPage() {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/bookings");
+      const res = await axios.get("http://localhost:4000/api/bookings");
       setBookings(res.data);
     } catch (err) {
       console.error("Error fetching bookings:", err);
@@ -43,7 +43,7 @@ export default function BookingsPage() {
 
     try {
       setSearching(true);
-      const res = await axios.get(`/api/bookings/${searchId.trim()}`);
+      const res = await axios.get(`http://localhost:4000/api/bookings/${searchId.trim()}`);
       setBookings([res.data]);
     } catch (err: any) {
       if (err.response?.status === 404) {
@@ -58,7 +58,7 @@ export default function BookingsPage() {
 
   const updateStatus = async (id: string, newStatus: string) => {
     try {
-      await axios.patch(`/api/bookings/${id}/status`, { status: newStatus });
+      await axios.patch(`http://localhost:4000/api/bookings/${id}/status`, { status: newStatus });
       setBookings((prev) =>
         prev.map((b) => (b._id === id ? { ...b, status: newStatus } : b))
       );
@@ -70,7 +70,7 @@ export default function BookingsPage() {
   const deleteBooking = async (id: string) => {
     if (!confirm("Are you sure you want to delete this booking?")) return;
     try {
-      await axios.delete(`/api/bookings/${id}`);
+      await axios.delete(`http://localhost:4000/api/bookings/${id}`);
       setBookings((prev) => prev.filter((b) => b._id !== id));
     } catch (err) {
       console.error("Error deleting booking:", err);

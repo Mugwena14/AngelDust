@@ -1,14 +1,27 @@
+// controllers/customerController.js
 import Customer from "../models/Customer.js";
 import Booking from "../models/Booking.js";
 import { asyncHandler } from "../middlewares/asyncHandler.js";
 
-// 🟢 Get all customers
+// Get all customers with their bookings
 export const listCustomers = asyncHandler(async (req, res) => {
   const customers = await Customer.find().sort({ createdAt: -1 });
-  res.json(customers);
+
+  // Fetch bookings for each customer
+  const customersWithBookings = await Promise.all(
+    customers.map(async (c) => {
+      const bookings = await Booking.find({ customer: c._id })
+        .populate("service")
+        .sort({ date: -1 });
+
+      return { ...c.toObject(), bookings };
+    })
+  );
+
+  res.json(customersWithBookings);
 });
 
-// 🟡 Get a specific customer with booking history
+// Get a specific customer with booking history
 export const getCustomer = asyncHandler(async (req, res) => {
   const id = req.params.id;
   const customer = await Customer.findById(id);
@@ -21,5 +34,5 @@ export const getCustomer = asyncHandler(async (req, res) => {
     .populate("service")
     .sort({ date: -1 });
 
-  res.json({ customer, history });
+  res.json({ ...customer.toObject(), bookings: history });
 });

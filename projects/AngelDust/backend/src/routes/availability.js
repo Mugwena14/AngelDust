@@ -1,12 +1,14 @@
-import { Router } from "express";
-import { getAvailability, upsertAvailability } from "../controllers/availabilityController.js";
-import { body } from "express-validator";
-import { validateRequest } from "../middlewares/validateRequest.js";
+import express from "express";
+import {
+    getUnavailableSlots,
+    addUnavailableSlot,
+    removeUnavailableSlot,
+} from "../controllers/availabilityController.js";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", getAvailability);
-
-router.post("/", upsertAvailability);
+router.get("/", getUnavailableSlots);
+router.post("/", addUnavailableSlot);
+router.delete("/:id", removeUnavailableSlot);
 
 export default router;
